@@ -1,7 +1,3 @@
-function RowClick(el) {
-	row = $('#issue-' + el);
-	link = '/issues/'+el;
-	row.dblclick(function() {
-		window.location = link;
-	});
-}
+$("tr").filter(".hascontextmenu").click(function() {
+  window.location.href = $(this).find("a").attr("href");
+});

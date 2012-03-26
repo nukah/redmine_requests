@@ -1,3 +1,7 @@
+<% content_for :header_tags do %>
+	<%= javascript_include_tag 'additional' %>
+<% end %>
+
 <% form_tag({}) do -%>
 <%= hidden_field_tag 'back_url', url_for(params) %>
 <div class="autoscroll">

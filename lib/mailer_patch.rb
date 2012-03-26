@@ -1,4 +1,6 @@
-Mailer.class_eval do 
+require_dependency 'mailer'
+
+class Mailer
   def create_mail
     # Removes the current user from the recipients and cc
     # if he doesn't want to receive notifications about what he does

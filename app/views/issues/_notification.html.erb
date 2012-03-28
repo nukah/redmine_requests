@@ -1,1 +1,3 @@
-<p><%= f.check_box :no_notification %></p>
+<% form_for :issue_status, :builder => TabularFormBuilder do |f| %>
+	<p><%= f.check_box :no_notification %></p>
+<% end %>

@@ -3,6 +3,7 @@ require 'redmine'
 config.to_prepare do 
   require_dependency 'journal_observer_patch'
   require_dependency 'mailer_patch'
+  require_dependency 'issue_status_notification'
 end
 
 Redmine::Plugin.register :redmine_requests do

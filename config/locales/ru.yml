@@ -14,4 +14,5 @@ ru:
     label_tracker_new: Новый тип заявок
     field_tracker: Тип заявки
     button_submit: Отправить
+    field_notification: Не отправлять сообщения для заявок с этим статусом
     

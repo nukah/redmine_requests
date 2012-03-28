@@ -12,7 +12,7 @@ class JournalObserver
         send = true
     end
     
-    if (journal.new_status.present? && [10,13].include?(journal.new_value_for('status_id')))
+    if (journal.new_status.present? && IssueStatus.find(:all, :conditions => { :no_notification => true }).include?(journal.new_value_for('status_id')))
       send = false
     end
     

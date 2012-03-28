@@ -15,4 +15,5 @@ ru:
     field_tracker: Тип заявки
     button_submit: Отправить
     field_notification: Не отправлять сообщения для заявок с этим статусом
+    field_notification_short: Без оповещений
     

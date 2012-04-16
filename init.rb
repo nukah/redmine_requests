@@ -11,7 +11,7 @@ Redmine::Plugin.register :redmine_requests do
   name 'Redmine POT updates'
   author 'Mighty'
   description 'Infrastructure updates'
-  version '0.0.5'
+  version '0.0.6'
   url 'http://github.com/nukah/redmine_pot'
   author_url 'http://primepress.ru'
 end

@@ -1,0 +1,5 @@
+tr.odd.priority-11, table.list tbody tr.odd.priority-11:hover { color: #900; font-weight: bold; background: #ffc4c4;}
+tr.odd.priority-11 { background: #ffc4c4; }
+tr.even.priority-11, table.list tbody tr.even.priority-11:hover { color: #900; font-weight: bold; background: #ffc4c4;}
+tr.even.priority-11 { background: #ffd4d4; }
+tr.odd.priority-11 td, tr.even.priority-11 td { border-color: #ffb4b4; }

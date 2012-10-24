@@ -7,6 +7,10 @@ ActionDispatch::Callbacks.to_prepare do
 	IssueStatus.send(:include, ExtendedIssueStatus)
 	Project.send(:include, ExtendedProject)
 	Issue.send(:include, ExtendedIssue)
+	ProjectsController.send(:include, ExtendedProjectsController)
+	QueriesController.send(:include, ExtendedQueriesController)
+	QueriesHelper.send(:include, ExtendedQueriesHelper)
+	ProjectsHelper.send(:include, ExtendedProjectsHelper)
 end
 
 Redmine::Plugin.register :pot_requests do

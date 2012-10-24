@@ -1,5 +1,4 @@
 ru:
-  field_notification: Не оповещать о событиях
   label_issue: Заявка
   label_issue_added: Заявка добавлена
   label_issue_category_plural: Категории заявок
@@ -18,3 +17,5 @@ ru:
   field_notification: Не отправлять сообщения для заявок с этим статусом
   field_notification_short: Без оповещений
   field_dates_shown: Показывать поля срока выполнения
+  default_query_for_project: Запрос для проекта по умолчанию
+  label_queries_plural: Запросы

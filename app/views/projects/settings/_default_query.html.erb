@@ -1,0 +1,17 @@
+<% if @queries.any? %>
+
+	<%= form_for :query,
+	            :url => set_default_query_path(@project),
+	            :html => { :method => :post } do %>
+
+		<div class="box">
+			<fieldset>
+				<%= l(:default_query_for_project) %>: <%= select_tag('id', options_from_collection_for_select(@queries, 'id', 'name'), { :include_blank => true, :selected => nil }) %>
+			</fieldset>
+		</div>
+		<p><%= submit_tag l(:button_save) %></p>
+
+	<% end %>
+<% else %>
+	<p class="nodata"><%= l(:label_no_data) %></p>
+<% end %>

@@ -66,13 +66,13 @@ module ExtendedIssueStatus
   		base.class_eval do
   			belongs_to :project
 
-			def update_default
-				IssueStatus.update_all({:is_default => false}, ['id <> ? AND project_id = ?', id, self.project_id]) if self.is_default?
-			end
+  			def update_default
+  				IssueStatus.update_all({:is_default => false}, ['id <> ? AND project_id = ?', id, self.project_id]) if self.is_default?
+  			end
 
-			def self.default_of_project(project)
-				includes(:project).where(:is_default => true, :project_id => project).first
-			end
+  			def self.default_of_project(project)
+  				includes(:project).where(:is_default => true, :project_id => project).first
+  			end
   		end
   	end
 end
@@ -128,11 +128,91 @@ end
 module ExtendedIssueStatusesController
 	def self.included(base)
 	  base.class_eval do
-		def edit_new
-			@issue_status = IssueStatus.find(params[:id])
-			@projects = Project.active
-		end
-		alias_method :edit, :edit_new
+  		def edit_new
+  			@issue_status = IssueStatus.find(params[:id])
+  			@projects = Project.active
+  		end
+		  alias_method :edit, :edit_new
 	  end
 	end
 end
+
+module ExtendedProjectsController
+  def self.included(base)
+    base.class_eval do
+      def settings
+        @issue_custom_fields = IssueCustomField.find(:all, :order => "#{CustomField.table_name}.position")
+        @issue_category ||= IssueCategory.new
+        @member ||= @project.members.new
+        @trackers = Tracker.sorted.all
+        @wiki ||= @project.wiki
+        @queries ||= Query.where(:project_id => @project.id)
+      end
+    end
+  end
+end
+
+module ExtendedQueriesController
+  def self.included(base)
+    base.class_eval do
+      before_filter :find_project_by_project_id, :only => [:set_default]
+      def set_default
+        Query.update(@query.id, :default => true)
+        Query.update_all({:default => false}, ['id <> ? AND project_id = ?', @query.id, @project.id])
+        redirect_to project_path(@project)
+      end
+    end
+  end
+end
+
+module ExtendedQueriesHelper
+  def self.included(base)
+    base.module_eval do
+      def retrieve_query
+        if !params[:query_id].blank?
+          cond = "project_id IS NULL"
+          cond << " OR project_id = #{@project.id}" if @project
+          @query = Query.find(params[:query_id], :conditions => cond)
+        raise ::Unauthorized unless @query.visible?
+          @query.project = @project
+          session[:query] = {:id => @query.id, :project_id => @query.project_id}
+          sort_clear
+        elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
+          # Give it a name, required to be valid
+          @query = (Query.includes(:project).where(:default => true, :project_id => @project).first or Query.new(:name => "_"))
+          @query.project = @project
+          build_query_from_params
+          session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+        else
+          # retrieve from session
+          @query = Query.find_by_id(session[:query][:id]) if session[:query][:id]
+          @query ||= Query.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
+          @query.project = @project
+        end
+      end
+    end
+  end
+end
+
+module ExtendedProjectsHelper
+  def self.included(base)
+    base.module_eval do
+      def project_settings_updated_tabs
+        tabs = [{:name => 'info', :action => :edit_project, :partial => 'projects/edit', :label => :label_information_plural},
+              {:name => 'modules', :action => :select_project_modules, :partial => 'projects/settings/modules', :label => :label_module_plural},
+              {:name => 'members', :action => :manage_members, :partial => 'projects/settings/members', :label => :label_member_plural},
+              {:name => 'versions', :action => :manage_versions, :partial => 'projects/settings/versions', :label => :label_version_plural},
+              {:name => 'categories', :action => :manage_categories, :partial => 'projects/settings/issue_categories', :label => :label_issue_category_plural},
+              {:name => 'wiki', :action => :manage_wiki, :partial => 'projects/settings/wiki', :label => :label_wiki},
+              {:name => 'repositories', :action => :manage_repository, :partial => 'projects/settings/repositories', :label => :label_repository_plural},
+              {:name => 'boards', :action => :manage_boards, :partial => 'projects/settings/boards', :label => :label_board_plural},
+              {:name => 'activities', :action => :manage_project_activities, :partial => 'projects/settings/activities', :label => :enumeration_activities},
+              {:name => 'queries', :action => :edit_project, :partial => 'projects/settings/default_query', :label => :label_queries_plural}
+              ]
+        tabs.select {|tab| User.current.allowed_to?(tab[:action], @project)}
+      end
+      alias_method :project_settings_tabs, :project_settings_updated_tabs
+    end
+  end
+end
+

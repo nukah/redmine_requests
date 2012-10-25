@@ -12,12 +12,12 @@ ActionDispatch::Callbacks.to_prepare do
 	QueriesHelper.send(:include, ExtendedQueriesHelper)
 	ProjectsHelper.send(:include, ExtendedProjectsHelper)
 end
-
+version = `git describe --always`
 Redmine::Plugin.register :pot_requests do
   name 'Pot Requests plugin'
   author 'Mighty'
   description 'POT Requests plugin for Redmine'
-  version '1.0'
+  version version
   url ''
   author_url 'http://primepress.ru'
 end

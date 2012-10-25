@@ -10,8 +10,8 @@ end
 
 class ChangeIssueNotification < Redmine::Hook::ViewListener
 	render_on :view_issue_statuses_form,
-          :partial => 'issues/notification'
-    render_on :view_issues_index_bottom,
+        :partial => 'issues/notification'
+  render_on :view_issues_index_bottom,
     	  :partial => 'issues/jscalls'
 end
 
@@ -178,10 +178,9 @@ module ExtendedQueriesHelper
           session[:query] = {:id => @query.id, :project_id => @query.project_id}
           sort_clear
         elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
-          # Give it a name, required to be valid
+          #updated query for projects with defaults query specified
           @query = (Query.includes(:project).where(:default => true, :project_id => @project).first or Query.new(:name => "_"))
           @query.project = @project
-          build_query_from_params
           session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
         else
           # retrieve from session

@@ -181,7 +181,7 @@ module ExtendedQueriesHelper
           #updated query for projects with defaults query specified
           @query = Query.includes(:project).where(:default => true, :project_id => @project).first
           session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
-        elsif params[:f] || params[:fields] || params[:set_filter] || session[:query][:project_id] != (@project ? @project.id : nil)
+        elsif params[:f] || params[:fields] || session[:query][:project_id] != (@project ? @project.id : nil)
           @query = Query.new(:name => "_")
           @query.project = @project
           build_query_from_params

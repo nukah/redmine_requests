@@ -177,11 +177,14 @@ module ExtendedQueriesHelper
           @query.project = @project
           session[:query] = {:id => @query.id, :project_id => @query.project_id}
           sort_clear
-        elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
+        elsif api_request? || session[:query].nil?
           #updated query for projects with defaults query specified
-          @query = (Query.includes(:project).where(:default => true, :project_id => @project).first or Query.new(:name => "_"))
-          @query.project = @project
+          @query = Query.includes(:project).where(:default => true, :project_id => @project).first
           session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+        elsif params[:f] || params[:fields] || params[:set_filter] || session[:query][:project_id] != (@project ? @project.id : nil)
+          @query = Query.new(:name => "_")
+          @query.project = @project
+          build_query_from_params
         else
           # retrieve from session
           @query = Query.find_by_id(session[:query][:id]) if session[:query][:id]

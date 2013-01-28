@@ -6,7 +6,7 @@
 <%= label('issue_project', t('field_project')) %>
 <%= select(	"issue_status", 
 			"project_id", 
-			options_from_collection_for_select(@projects, "id", "name", @issue_status.project_id), { 
+			options_from_collection_for_select(@projects, "id", "name", (@issue_status.project_id if @issue_status.exists?), { 
 					:include_blank => true
 			}) %>
 </p>

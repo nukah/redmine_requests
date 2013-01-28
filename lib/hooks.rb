@@ -1,18 +1,16 @@
   ## Ассигнование заявки к группе
-class UpdateAssignOnCategory < Redmine::Hook::ViewListener
-def controller_issues_edit_before_save(context={})
-  if context[:params] && context[:issue][:category_id]
-    cat = IssueCategory.find(context[:issue][:category_id])
-    context[:issue].assigned_to_id = cat.assigned_to_id if cat.assigned_to_id
+module RedmineHooks
+  class Hooks < Redmine::Hook::ViewListener
+  	render_on :view_issue_statuses_form, :partial => 'issues/notification'
+    render_on :view_issues_index_bottom, :partial => 'issues/js_calls'
   end
-end
-end
 
-class ChangeIssueNotification < Redmine::Hook::ViewListener
-	render_on :view_issue_statuses_form,
-        :partial => 'issues/notification'
-  render_on :view_issues_index_bottom,
-    	  :partial => 'issues/jscalls'
+  def controller_issues_edit_before_save(context={})
+    if context[:params] && context[:issue][:category_id]
+      cat = IssueCategory.find(context[:issue][:category_id])
+      context[:issue].assigned_to_id = cat.assigned_to_id if cat.assigned_to_id
+    end
+  end
 end
 
   ## Привязка статуса к проекту

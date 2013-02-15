@@ -155,8 +155,12 @@ module ExtendedQueriesController
     base.class_eval do
       before_filter :find_project_by_project_id, :only => [:set_default]
       def set_default
-        Query.update(@query.id, :default => true)
-        Query.update_all({:default => false}, ['id <> ? AND project_id = ?', @query.id, @project.id])
+        if params[:id].nil?
+          Query.update_all({:default => false}, ['project_id = ?', @project.id])
+        else
+          Query.update(params[:id], :default => true)
+          Query.update_all({:default => false}, ['id <> ? AND project_id = ?', params[:id], @project.id])
+        end
         redirect_to project_path(@project)
       end
     end
@@ -168,18 +172,18 @@ module ExtendedQueriesHelper
     base.module_eval do
       def retrieve_query
         if !params[:query_id].blank?
-          cond = "project_id IS NULL"
-          cond << " OR project_id = #{@project.id}" if @project
-          @query = Query.find(params[:query_id], :conditions => cond)
+          #cond = "project_id IS NULL"
+          #cond = "project_id = #{@project.id}" if @project
+          @query = Query.find(params[:query_id])
         raise ::Unauthorized unless @query.visible?
-          @query.project = @project
-          session[:query] = {:id => @query.id, :project_id => @query.project_id}
+          #@query.project = @project
+          session[:query] = {:id => @query.id}
           sort_clear
         elsif api_request? || session[:query].nil?
           #updated query for projects with defaults query specified
-          @query = Query.includes(:project).where(:default => true, :project_id => @project).first
-          session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
-        elsif params[:f] || params[:fields] || session[:query][:project_id] != (@project ? @project.id : nil)
+          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first
+          session[:query] = { :id => @query.id, :project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+        elsif params[:f] || params[:fields] 
           @query = Query.new(:name => "_")
           @query.project = @project
           build_query_from_params

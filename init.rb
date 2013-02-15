@@ -1,6 +1,9 @@
-require_dependency 'hooks'
+#require_dependency 'hooks'
+Rails.application.paths["app/overrides"] ||= []
+Rails.application.paths["app/overrides"] << File.expand_path("../app/overrides", __FILE__)
 
-ActionDispatch::Callbacks.to_prepare do
+RedmineApp::Application.config.after_initialize do
+	require 'hooks'
 	IssuesController.send(:include, ExtendedIssuesController) unless IssuesController.include?(ExtendedIssuesController)
 	IssueStatusesController.send(:include, ExtendedIssueStatusesController) unless IssueStatusesController.include?(ExtendedIssueStatusesController)
 	JournalObserver.send(:include, ExtendedJournalObserver) unless JournalObserver.include?(ExtendedJournalObserver)
@@ -11,7 +14,10 @@ ActionDispatch::Callbacks.to_prepare do
 	QueriesController.send(:include, ExtendedQueriesController) unless QueriesController.include?(ExtendedQueriesController)
 	QueriesHelper.send(:include, ExtendedQueriesHelper) unless QueriesHelper.include?(ExtendedQueriesHelper)
 	ProjectsHelper.send(:include, ExtendedProjectsHelper) unless ProjectsHelper.include?(ExtendedProjectsHelper)
-end
+end	
+# ActionDispatch::Callbacks.to_prepare do
+	
+# end
 version = `git describe --always`
 Redmine::Plugin.register :redmine_requests do
   name 'Pot Requests plugin'
@@ -20,4 +26,5 @@ Redmine::Plugin.register :redmine_requests do
   version version
   url ''
   author_url 'http://primepress.ru'
+  requires_redmine :version_or_higher => '2.1.0'
 end

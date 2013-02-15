@@ -172,26 +172,19 @@ module ExtendedQueriesHelper
     base.module_eval do
       def retrieve_query
         if !params[:query_id].blank?
-          #cond = "project_id IS NULL"
-          #cond = "project_id = #{@project.id}" if @project
           @query = Query.find(params[:query_id])
-        raise ::Unauthorized unless @query.visible?
-          #@query.project = @project
-          session[:query] = {:id => @query.id}
+          raise ::Unauthorized unless @query.visible?
           sort_clear
-        elsif api_request? || session[:query].nil?
-          #updated query for projects with defaults query specified
-          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first
-          session[:query] = { :id => @query.id, :project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
-        elsif params[:f] || params[:fields] 
-          @query = Query.new(:name => "_")
+        elsif params[:set_filter]
+          @query = Query.new(:name => '_')
           @query.project = @project
           build_query_from_params
         else
-          # retrieve from session
-          @query = Query.find_by_id(session[:query][:id]) if session[:query][:id]
-          @query ||= Query.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
-          @query.project = @project
+          logger.debug "1__________"
+          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first
+          #@query = Query.find_by_id(session[:query][:id]) if session[:query][:id]
+          #@query ||= Query.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
+          #@query.project = @project
         end
       end
     end

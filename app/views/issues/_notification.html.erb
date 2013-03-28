@@ -1,1 +1,10 @@
-<p><%= label('issue_no_notification', t('field_notification')) %>: <%= check_box('issue_status', 'no_notification') %></p>
+<p>
+<%= label('issue_no_notification', t('field_notification')) %>
+<%= check_box('issue_status', 'no_notification') %>
+</p>
+<p>
+<%= label('issue_project', t('field_project')) %>
+<%= select(	"issue_status", 
+			"project_id", 
+			options_from_collection_for_select(@projects, "id", "name", (@issue_status.project_id.present? ? @issue_status.project_id : nil)), { :include_blank => true }) %>
+</p>

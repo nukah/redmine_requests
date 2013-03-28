@@ -1,19 +1,29 @@
-require 'redmine'
+Rails.application.paths["app/overrides"] ||= []
+Rails.application.paths["app/overrides"] << File.expand_path("../app/overrides", __FILE__)
 
-config.to_prepare do 
-  require_dependency 'journal_observer_patch'
-  require_dependency 'mailer_patch'
-  require_dependency 'issue_status_notification'
-  require_dependency 'project_model_dates'
-end
-
-require 'update_category'
-
+RedmineApp::Application.config.after_initialize do
+	require 'hooks'
+	IssuesController.send(:include, ExtendedIssuesController) unless IssuesController.include?(ExtendedIssuesController)
+	IssueStatusesController.send(:include, ExtendedIssueStatusesController) unless IssueStatusesController.include?(ExtendedIssueStatusesController)
+	JournalObserver.send(:include, ExtendedJournalObserver) unless JournalObserver.include?(ExtendedJournalObserver)
+	IssueStatus.send(:include, ExtendedIssueStatus) unless IssueStatus.include?(ExtendedIssueStatus)
+	Project.send(:include, ExtendedProject) unless Project.include?(ExtendedProject)
+	Issue.send(:include, ExtendedIssue) unless Issue.include?(ExtendedIssue)
+	ProjectsController.send(:include, ExtendedProjectsController) unless ProjectsController.include?(ExtendedProjectsController)
+	QueriesController.send(:include, ExtendedQueriesController) unless QueriesController.include?(ExtendedQueriesController)
+	QueriesHelper.send(:include, ExtendedQueriesHelper) unless QueriesHelper.include?(ExtendedQueriesHelper)
+	ProjectsHelper.send(:include, ExtendedProjectsHelper) unless ProjectsHelper.include?(ExtendedProjectsHelper)
+end	
+# ActionDispatch::Callbacks.to_prepare do
+	
+# end
+version = `git describe --always`
 Redmine::Plugin.register :redmine_requests do
-  name 'Redmine POT updates'
+  name 'Pot Requests plugin'
   author 'Mighty'
-  description 'Infrastructure updates'
-  version '0.0.8'
-  url 'http://github.com/nukah/redmine_pot'
+  description 'POT Requests plugin for Redmine'
+  version version
+  url ''
   author_url 'http://primepress.ru'
+  requires_redmine :version_or_higher => '2.1.0'
 end

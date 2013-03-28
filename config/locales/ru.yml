@@ -1,20 +1,21 @@
 ru:
-    label_issue: Заявка
-    label_issue_added: Заявка добавлена
-    label_issue_category_plural: Категории заявок
-    label_issue_tracking: Заявки
-    label_issue_plural: Заявки
-    label_issue_status_plural: Статусы заявок
-    label_issue_status: Статус заявки
-    label_issue_view_all: Посмотреть все заявки
-    label_reported_issues: Созданные заявки
-    label_issue_new: Новая заявка
-    label_tracker: Тип заявки
-    label_tracker_plural: Типы заявок
-    label_tracker_new: Новый тип заявок
-    field_tracker: Тип заявки
-    button_submit: Отправить
-    field_notification: Не отправлять сообщения для заявок с этим статусом
-    field_notification_short: Без оповещений
-    field_dates_shown: Показывать поля срока выполнения
-    
+  label_issue: Заявка
+  label_issue_added: Заявка добавлена
+  label_issue_category_plural: Категории заявок
+  label_issue_tracking: Заявки
+  label_issue_plural: Заявки
+  label_issue_status_plural: Статусы заявок
+  label_issue_status: Статус заявки
+  label_issue_view_all: Посмотреть все заявки
+  label_reported_issues: Созданные заявки
+  label_issue_new: Новая заявка
+  label_tracker: Тип заявки
+  label_tracker_plural: Типы заявок
+  label_tracker_new: Новый тип заявок
+  field_tracker: Тип заявки
+  button_submit: Отправить
+  field_notification: Не отправлять сообщения для заявок с этим статусом
+  field_notification_short: Без оповещений
+  field_dates_shown: Показывать поля срока выполнения
+  default_query_for_project: Запрос для проекта по умолчанию
+  label_queries_plural: Запросы

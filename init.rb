@@ -2,7 +2,7 @@ Rails.application.paths["app/overrides"] ||= []
 Rails.application.paths["app/overrides"] << File.expand_path("../app/overrides", __FILE__)
 
 RedmineApp::Application.config.after_initialize do
-	require 'hooks'
+	require 'request_hooks'
 	IssuesController.send(:include, ExtendedIssuesController) unless IssuesController.include?(ExtendedIssuesController)
 	IssueStatusesController.send(:include, ExtendedIssueStatusesController) unless IssueStatusesController.include?(ExtendedIssueStatusesController)
 	JournalObserver.send(:include, ExtendedJournalObserver) unless JournalObserver.include?(ExtendedJournalObserver)

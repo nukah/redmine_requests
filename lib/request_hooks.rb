@@ -77,8 +77,27 @@ end
 
 module ExtendedIssuesController
   def self.included(base)
+    base.send(:include, IsProjectForGroupable)
     base.class_eval do
       helper :extended_issues
+      before_filter :project_groupable, :only => [:new]
+    end
+  end
+
+  # Присутствует ли параметр у проекта, который позволяет ставить в "назначенное" задачам не доступных людей,
+  # а только пользователей у которых есть нужный флаг, соответствующий тому что они начальники в группе
+  # Если параметр присутствует:
+  # Вычисляется группа автора и другие члены этой группы
+  # Вычисляются текущие "начальники групп" и проводится определение начальника из группы пользователя
+  module IsProjectForGroupable
+    def project_groupable
+      field = ProjectCustomField.where(name: 'groupable').first
+      @project_acceptable_for_groups = @project.custom_value_for(field) if field
+      if @project_acceptable_for_groups
+        author_group = User.find_by_sql [ "SELECT users.* FROM users LEFT JOIN groups_users ON users.id = groups_users.user_id WHERE groups_users.group_id IN (SELECT groups_users.group_id AS gid FROM groups_users WHERE groups_users.user_id = ?)", @issue.author.id ]
+        heads_group = User.where(['id in (?)', UserCustomField.where(['name like ?', 'head']).collect { |ucf| ucf.custom_values }.flatten.collect(&:customized_id)])
+        @assignees = heads_group & author_group
+      end
     end
   end
 end
@@ -180,7 +199,7 @@ module ExtendedQueriesHelper
           @query.project = @project
           build_query_from_params
         else
-          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first 
+          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first
           (@query ||= Query.new(:name => "_") and @query.project = @project) if @query.nil?
           sort_clear
         end

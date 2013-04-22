@@ -91,12 +91,11 @@ module ExtendedIssuesController
   # Вычисляются текущие "начальники групп" и проводится определение начальника из группы пользователя
   module IsProjectForGroupable
     def project_groupable
-      field = ProjectCustomField.where(name: 'groupable').first
+      field = ProjectCustomField.find(:first, conditions: {name: 'groupable'})
       @project_acceptable_for_groups = @project.custom_value_for(field) if field
       if @project_acceptable_for_groups
-        author_group = User.find_by_sql [ "SELECT users.* FROM users LEFT JOIN groups_users ON users.id = groups_users.user_id WHERE groups_users.group_id IN (SELECT groups_users.group_id AS gid FROM groups_users WHERE groups_users.user_id = ?)", @issue.author.id ]
-        heads_group = User.where(['id in (?)', UserCustomField.where(['name like ?', 'head']).collect { |ucf| ucf.custom_values }.flatten.collect(&:customized_id)])
-        @assignees = heads_group & author_group
+        author_group = User.find_by_sql([ "SELECT users.id FROM users LEFT JOIN groups_users ON users.id = groups_users.user_id WHERE groups_users.group_id IN (SELECT groups_users.group_id AS gid FROM groups_users WHERE groups_users.user_id = ?)", @issue.author.id ]).collect(&:id)
+        @assignees = User.where(['id in (?)', UserCustomField.find(:first, conditions: ['name like ?', 'head']).custom_values.select { |cv| cv.value == "1" && author_group.include?(cv.customized_id) }.collect(&:customized_id) ])
       end
     end
   end

@@ -174,10 +174,10 @@ module ExtendedQueriesController
       before_filter :find_project_by_project_id, :only => [:set_default]
       def set_default
         if params[:id].nil?
-          Query.update_all({:default => false}, ['project_id = ?', @project.id])
+          IssueQuery.update_all({:default => false}, ['project_id = ?', @project.id])
         else
-          Query.update(params[:id], :default => true)
-          Query.update_all({:default => false}, ['id <> ? AND project_id = ?', params[:id], @project.id])
+          IssueQuery.update(params[:id], :default => true)
+          IssueQuery.update_all({:default => false}, ['id <> ? AND project_id = ?', params[:id], @project.id])
         end
         redirect_to project_path(@project)
       end
@@ -190,16 +190,16 @@ module ExtendedQueriesHelper
     base.module_eval do
       def retrieve_query
         if !params[:query_id].blank?
-          @query = Query.find(params[:query_id])
+          @query = IssueQuery.find(params[:query_id])
           raise ::Unauthorized unless @query.visible?
           sort_clear
         elsif params[:set_filter]
-          @query = Query.new(:name => '_')
+          @query = IssueQuery.new(:name => '_')
           @query.project = @project
-          build_query_from_params
+          @query.build_from_params(params)
         else
-          @query = Query.includes(:project).where(:default => true, :project_id => @project.id).first
-          (@query ||= Query.new(:name => "_") and @query.project = @project) if @query.nil?
+          @query = IssueQuery.includes(:project).where(:default => true, :project_id => @project.id).first
+          (@query ||= IssueQuery.new(:name => "_") and @query.project = @project) if @query.nil?
           sort_clear
         end
       end

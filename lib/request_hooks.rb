@@ -31,7 +31,7 @@ module ExtendedIssue
   def self.included(base)
     base.class_eval do
       def new_statuses_allowed_to(user=User.current, include_default=false)
-        if new_record? && @copied_from
+        if new_record? && @Copied_from
           [IssueStatus.default_of_project(project), @copied_from.status].compact.uniq.sort
         else
           initial_status = nil
@@ -92,7 +92,7 @@ module ExtendedIssuesController
   module IsProjectForGroupable
     def project_groupable
       field = ProjectCustomField.find(:first, conditions: {name: 'groupable'})
-      @project_acceptable_for_groups = @project.custom_value_for(field) if field
+      @project_acceptable_for_groups = @project.custom_value_for(field).value if field
       if @project_acceptable_for_groups
         author_group = User.find_by_sql([ "SELECT users.id FROM users LEFT JOIN groups_users ON users.id = groups_users.user_id WHERE groups_users.group_id IN (SELECT groups_users.group_id AS gid FROM groups_users WHERE groups_users.user_id = ?)", @issue.author.id ]).collect(&:id)
         @assignees = User.where(['id in (?)', UserCustomField.find(:first, conditions: ['name like ?', 'head']).custom_values.select { |cv| cv.value == "1" && author_group.include?(cv.customized_id) }.collect(&:customized_id) ])

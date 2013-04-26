@@ -92,7 +92,7 @@ module ExtendedIssuesController
   module IsProjectForGroupable
     def project_groupable
       project_groupable = @project.custom_value_for(ProjectCustomField.find(:first, conditions: {name: 'groupable'}))
-      @project_acceptable_for_groups = project.groupable.value unless project_groupable.nil?
+      @project_acceptable_for_groups = project_groupable.value unless project_groupable.nil?
       if @project_acceptable_for_groups == 1
         author_group = User.find_by_sql([ "SELECT users.id FROM users LEFT JOIN groups_users ON users.id = groups_users.user_id WHERE groups_users.group_id IN (SELECT groups_users.group_id AS gid FROM groups_users WHERE groups_users.user_id = ?)", @issue.author.id ]).collect(&:id)
         @assignees = User.where(['id in (?)', UserCustomField.find(:first, conditions: ['name like ?', 'head']).custom_values.select { |cv| cv.value == "1" && author_group.include?(cv.customized_id) }.collect(&:customized_id) ])

@@ -5,5 +5,6 @@ function refresh() {
   });
 }
 $(document).ready(function() {
-  refresh();
+  setInterval(function() { refresh(); }, 10000);
+  console.log("refresh run");
 });

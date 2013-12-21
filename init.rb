@@ -9,13 +9,14 @@ RedmineApp::Application.config.after_initialize do
 	IssueStatus.send(:include, ExtendedIssueStatus) unless IssueStatus.include?(ExtendedIssueStatus)
 	Project.send(:include, ExtendedProject) unless Project.include?(ExtendedProject)
 	Issue.send(:include, ExtendedIssue) unless Issue.include?(ExtendedIssue)
+  Mailer.send(:include, ExtendedMailer) unless Mailer.include?(ExtendedMailer)
 	ProjectsController.send(:include, ExtendedProjectsController) unless ProjectsController.include?(ExtendedProjectsController)
 	QueriesController.send(:include, ExtendedQueriesController) unless QueriesController.include?(ExtendedQueriesController)
-	QueriesHelper.send(:include, ExtendedQueriesHelper) unless QueriesHelper.include?(ExtendedQueriesHelper)
+	#QueriesHelper.send(:include, ExtendedQueriesHelper) unless QueriesHelper.include?(ExtendedQueriesHelper)
 	ProjectsHelper.send(:include, ExtendedProjectsHelper) unless ProjectsHelper.include?(ExtendedProjectsHelper)
-end	
+end
 # ActionDispatch::Callbacks.to_prepare do
-	
+
 # end
 version = `git describe --always`
 Redmine::Plugin.register :redmine_requests do

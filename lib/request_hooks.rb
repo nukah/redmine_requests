@@ -13,6 +13,20 @@ module RedmineHooks
   end
 end
 
+module ExtendedMailer
+  def self.included(base)
+    base.class_eval do
+      def overdue_issues(mail, issues)
+        @issues = issues
+        @issues_url = url_for(:controller => 'issues', :action => 'index',
+                                    :set_filter => 1,
+                                    :sort => 'due_date:asc')
+        mail(:to => mail, :subject => l(:mail_subject_reminder, :count => issues.size, :days => 14))
+      end
+    end
+  end
+end
+
   ## Привязка статуса к проекту
   ## Даты
 module ExtendedProject
@@ -30,8 +44,13 @@ end
 module ExtendedIssue
   def self.included(base)
     base.class_eval do
+      def status_lasted(status_id, time = 5)
+        ids = Journal.includes(:details).where("journal_details.prop_key ='status_id' and journal_details.value = '#{status_id}'").map(&:journalized_id)
+        Issue.find_all_by_id(ids).select { |i| (((i.journals.map { |j| j.details.any? { |jd| jd.old_value == "#{status_id}" && jd.prop_key == "status_id" } and j.created_on }.compact.first || Time.zone.now) - ( i.journals.map { |j| j.details.any? { |jd| jd.value == "#{status_id}" && jd.prop_key == "status_id" } and j.created_on}.compact.first || Time.zone.now))/86400).to_i > time.to_i }
+      end
+
       def new_statuses_allowed_to(user=User.current, include_default=false)
-        if new_record? && @Copied_from
+        if new_record? && @copied_from
           [IssueStatus.default_of_project(project), @copied_from.status].compact.uniq.sort
         else
           initial_status = nil
@@ -188,6 +207,30 @@ end
 module ExtendedQueriesHelper
   def self.included(base)
     base.module_eval do
+      # def retrieve_query
+      #   if !params[:query_id].blank?
+      #     cond = "project_id IS NULL"
+      #     cond << " OR project_id = #{@project.id}" if @project
+      #     @query = IssueQuery.where(cond).find(params[:query_id])
+      #     raise ::Unauthorized unless @query.visible?
+      #     @query.project = @project
+      #     session[:query] = {:id => @query.id, :project_id => @query.project_id}
+      #     sort_clear
+      #   elsif api_request? || params[:set_filter] || session[:query].nil? || session[:query][:project_id] != (@project ? @project.id : nil)
+      #     # Give it a name, required to be valid
+      #     @query = IssueQuery.new(:name => "_")
+      #     @query.project = @project
+      #     @query.build_from_params(params)
+      #     session[:query] = {:project_id => @query.project_id, :filters => @query.filters, :group_by => @query.group_by, :column_names => @query.column_names}
+      #   else
+      #     # retrieve from session
+      #     @query = nil
+      #     @query = IssueQuery.find_by_id(session[:query][:id]) if session[:query][:id]
+      #     @query ||= IssueQuery.new(:name => "_", :filters => session[:query][:filters], :group_by => session[:query][:group_by], :column_names => session[:query][:column_names])
+      #     @query.project = @project
+      #   end
+      # end
+
       def retrieve_query
         if !params[:query_id].blank?
           @query = IssueQuery.find(params[:query_id])

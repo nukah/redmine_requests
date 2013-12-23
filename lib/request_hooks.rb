@@ -22,7 +22,9 @@ module ExtendedMailer
         @status = IssueStatus.find(status_id).name
         @issues_url = url_for(:controller => 'issues', :action => 'index',
                                     :set_filter => 1)
-        mail(:to => mail, :subject => l(:mail_subject_overdue, :count => issues.size, :days => @days, :status => @status))
+        mail(:to => mail, :subject => l(:mail_subject_overdue, :count => issues.size, :days => @days, :status => @status)) do |format|
+          format.html { render }
+        end
       end
     end
   end

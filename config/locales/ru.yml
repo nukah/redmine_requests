@@ -19,3 +19,5 @@ ru:
   field_dates_shown: Показывать поля срока выполнения
   default_query_for_project: Запрос для проекта по умолчанию
   label_queries_plural: Запросы
+  mail_body_overdue: "%{count} заявок находятся в статусе '%{status}' более %{days} дней"
+  mail_subject_overdue: "Заявки со сроком выполнения более %{days} дней"

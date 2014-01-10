@@ -9,7 +9,7 @@ namespace :redmine do
     issues = Issue.includes(:status).where("#{IssueStatus.table_name}.is_closed = ? AND #{Issue.table_name}.project_id = ?", false, project).select { |issue| filter.call(issue)/86400 > days }
     overdue = Hash[*issues.map { |i| [i.id, filter.call(i)/86400] }.flatten]
     Mailer.with_synched_deliveries do
-      Mailer.overdue_issues('bgushin@primepress.ru', issues, status, days).deliver
+      Mailer.overdue_issues('bgushin@primepress.ru', issues, status, days, overdue).deliver
     end
   end
 end

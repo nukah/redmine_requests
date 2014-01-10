@@ -16,12 +16,13 @@ end
 module ExtendedMailer
   def self.included(base)
     base.class_eval do
-      def overdue_issues(mail, issues, status_id, day_amount)
+      def overdue_issues(mail, issues, status_id, day_amount, overdue)
         @issues = issues
         @days = day_amount
         @status = IssueStatus.find(status_id).name
         @issues_url = url_for(:controller => 'issues', :action => 'index',
                                     :set_filter => 1)
+        @overdue = overdue
         mail(:to => mail, :subject => l(:mail_subject_overdue, :count => issues.size, :days => @days, :status => @status)) do |format|
           format.html { render }
         end
